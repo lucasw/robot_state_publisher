@@ -58,6 +58,11 @@ if (CATKIN_ENABLE_TESTING)
 
   find_package(rostest REQUIRED)
 
+  # to build these:
+  # catkin build robot_state_publisher --catkin-make-args run_tests
+  catkin_add_gtest(test_robot_state test/test_robot_state.cpp)
+  target_link_libraries(test_robot_state ${PROJECT_NAME}_solver)
+
   add_rostest_gtest(test_default_constructor test/test_default_constructor.launch test/test_default_constructor.cpp)
   target_link_libraries(test_default_constructor joint_state_listener ${PROJECT_NAME}_solver)
 
