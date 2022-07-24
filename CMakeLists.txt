@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(robot_state_publisher)
 
 include(CheckCXXCompilerFlag)
+
 if (NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 14)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,11 +17,17 @@ endif()
 
 find_package(orocos_kdl REQUIRED)
 find_package(catkin REQUIRED
-  COMPONENTS kdl_parser roscpp rosconsole rostime sensor_msgs tf2_ros tf2_kdl
+  COMPONENTS kdl_parser roscpp rosconsole roslint rostime sensor_msgs tf2_msgs tf2_ros tf2_kdl
 )
 find_package(Eigen3 REQUIRED)
 
 find_package(urdfdom_headers REQUIRED)
+
+set(ROSLINT_CPP_OPTS "--filter=-whitespace/braces")
+roslint_cpp(
+  src/robot_state.cpp
+  include/robot_state_publisher/robot_state.h
+)
 
 catkin_package(
   LIBRARIES ${PROJECT_NAME}_solver joint_state_listener
@@ -33,6 +40,7 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${orocos_kdl_INCLUDE_DIRS} ${
 link_directories(${orocos_kdl_LIBRARY_DIRS})
 
 add_library(${PROJECT_NAME}_solver
+  src/robot_state.cpp
   src/robot_state_publisher.cpp
 )
 target_compile_features(${PROJECT_NAME}_solver PUBLIC cxx_std_14)

@@ -29,9 +29,11 @@
   <depend>kdl_parser</depend>
   <depend>rosconsole</depend>
   <depend>roscpp</depend>
+  <depend>roslint</depend>
   <depend>rostime</depend>
   <depend>sensor_msgs</depend>
   <depend>tf</depend>
+  <depend>tf2_msgs</depend>
   <depend>tf2_ros</depend>
   <depend>tf2_kdl</depend>
 
