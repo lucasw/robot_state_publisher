@@ -65,10 +65,9 @@ RobotState::RobotState()
     return;
   }
 
-  for (std::map< std::string, urdf::JointSharedPtr >::iterator i = model_.joints_.begin();
-       i != model_.joints_.end(); i++) {
-    if (i->second->mimic) {
-      mimic_.insert(std::make_pair(i->first, i->second->mimic));
+  for (const auto& joints : model_.joints_) {
+    if (joints.second->mimic) {
+      mimic_[joints.first] = joints.second->mimic;
     }
   }
 
@@ -93,12 +92,12 @@ void RobotState::addChildren(const KDL::SegmentMap::const_iterator segment)
                  root.c_str(), child.getName().c_str());
       }
       else {
-        segments_fixed_.insert(make_pair(child.getJoint().getName(), s));
+        segments_fixed_[child.getJoint().getName()] = s;
         ROS_DEBUG("Adding fixed segment from %s to %s", root.c_str(), child.getName().c_str());
       }
     }
     else {
-      segments_.insert(make_pair(child.getJoint().getName(), s));
+      segments_[child.getJoint().getName()] = s;
       ROS_DEBUG("Adding moving segment from %s to %s", root.c_str(), child.getName().c_str());
     }
     addChildren(children[i]);
@@ -124,14 +123,18 @@ void RobotState::setJointState(const sensor_msgs::JointState& joint_state)
   // update joint positions from joint_stateg message
   // if it doesn't contain all the joints then old positions are used
   for (size_t i = 0; i < joint_state.name.size(); ++i) {
-    joint_positions_.insert(std::make_pair(joint_state.name[i], joint_state.position[i]));
+    const auto& joint_name = joint_state.name[i];
+    const auto& joint_position = joint_state.position[i];
+    joint_positions_[joint_name] = joint_position;
   }
 
-  for (MimicMap::iterator i = mimic_.begin(); i != mimic_.end(); i++) {
-    // TODO(lucasw) contains()
-    if (joint_positions_.find(i->second->joint_name) != joint_positions_.end()) {
-      const double pos = joint_positions_[i->second->joint_name] * i->second->multiplier + i->second->offset;
-      joint_positions_.insert(std::make_pair(i->first, pos));
+  for (const auto& mimic_pair : mimic_) {
+    const auto& joint_dst_name = mimic_pair.first;
+    const auto& joint_src = mimic_pair.second;
+
+    if (joint_positions_.count(joint_src->joint_name) > 0) {
+      const double pos = joint_positions_[joint_src->joint_name] * joint_src->multiplier + joint_src->offset;
+      joint_positions_[joint_dst_name] = pos;
     }
   }
 }
@@ -142,39 +145,38 @@ tf2_msgs::TFMessage RobotState::getTransforms(const ros::Time& time)
   tf2_msgs::TFMessage tfm;
 
   // loop over all joints
-  // TODO(lucasw) modernize this for statement
-  for (std::map<std::string, double>::const_iterator jnt = joint_positions_.begin();
-       jnt != joint_positions_.end(); jnt++) {
-    std::map<std::string, SegmentPair>::const_iterator seg = segments_.find(jnt->first);
-    if (seg != segments_.end()) {
-      geometry_msgs::TransformStamped tf_transform = tf2::kdlToTransform(seg->second.segment.pose(jnt->second));
+  for (const auto& jnt : joint_positions_) {
+    const auto& joint_name = jnt.first;
+    const auto& joint_position = jnt.second;
+
+    if (segments_.count(joint_name) > 0) {
+      const auto& seg = segments_[joint_name];
+      geometry_msgs::TransformStamped tf_transform = tf2::kdlToTransform(seg.segment.pose(joint_position));
       tf_transform.header.stamp = time;
-      tf_transform.header.frame_id = seg->second.root;
-      tf_transform.child_frame_id = seg->second.tip;
+      tf_transform.header.frame_id = seg.root;
+      tf_transform.child_frame_id = seg.tip;
       tfm.transforms.push_back(tf_transform);
     }
     else {
-      ROS_WARN_THROTTLE(10, "Joint state with name: \"%s\" was received but not found in URDF", jnt->first.c_str());
+      ROS_WARN_THROTTLE(10, "Joint state with name: \"%s\" was received but not found in URDF", joint_name.c_str());
     }
   }
   return tfm;
 }
 
-// publish fixed transforms
+// get fixed transforms
 tf2_msgs::TFMessage RobotState::getFixedTransforms(const ros::Time& time)
 {
   ROS_DEBUG("Publishing transforms for fixed joints");
   tf2_msgs::TFMessage tfm;
 
   // loop over all fixed segments
-  // TODO(lucasw) modernize this for statement
-  for (std::map<std::string, SegmentPair>::const_iterator seg = segments_fixed_.begin();
-       seg != segments_fixed_.end(); seg++) {
-    geometry_msgs::TransformStamped tf_transform = tf2::kdlToTransform(seg->second.segment.pose(0));
+  for (const auto& seg : segments_fixed_) {
+    geometry_msgs::TransformStamped tf_transform = tf2::kdlToTransform(seg.second.segment.pose(0));
     // TODO(lucasw) this time isn't need since static?
     tf_transform.header.stamp = time;
-    tf_transform.header.frame_id = seg->second.root;
-    tf_transform.child_frame_id = seg->second.tip;
+    tf_transform.header.frame_id = seg.second.root;
+    tf_transform.child_frame_id = seg.second.tip;
     tfm.transforms.push_back(tf_transform);
   }
 
