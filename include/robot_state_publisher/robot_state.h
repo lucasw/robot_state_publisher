@@ -57,6 +57,8 @@ typedef std::map<std::string, urdf::JointMimicSharedPtr> MimicMap;
 class SegmentPair
 {
 public:
+  // TODO(lucasw) needed for operator[] map access, consider elminating that need
+  SegmentPair(){}
   SegmentPair(const KDL::Segment& p_segment, const std::string& p_root, const std::string& p_tip):
     segment(p_segment), root(p_root), tip(p_tip){}
 
