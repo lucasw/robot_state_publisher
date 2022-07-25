@@ -55,6 +55,7 @@ RobotState::RobotState()
   // gets the location of the robot description on the parameter server
   if (!model_.initParam("robot_description")) {
     // TODO(lucasw) throw
+    ROS_ERROR("could not load robot_description");
     return;
   }
 
@@ -70,9 +71,13 @@ RobotState::RobotState()
       mimic_[joints.first] = joints.second->mimic;
     }
   }
+  ROS_INFO_STREAM("mimic joints " << mimic_.size());
 
-  // walk the tree and add segments to segments_
+  // walk the tree recursively and add segments to segments_
   addChildren(tree.getRootSegment());
+
+  ROS_INFO_STREAM("segments size " << segments_.size()
+      << ", segments_fixed size " << segments_fixed_.size());
 }
 
 // add children to correct maps
@@ -87,18 +92,18 @@ void RobotState::addChildren(const KDL::SegmentMap::const_iterator segment)
     if (child.getJoint().getType() == KDL::Joint::None) {
       if (model_.getJoint(child.getJoint().getName()) &&
           model_.getJoint(child.getJoint().getName())->type == urdf::Joint::FLOATING) {
-        ROS_INFO("Floating joint. Not adding segment from %s to %s."
+        ROS_WARN("Floating joint. Not adding segment from '%s' to '%s'."
                  "  This TF can not be published based on joint_states info",
                  root.c_str(), child.getName().c_str());
       }
       else {
         segments_fixed_[child.getJoint().getName()] = s;
-        ROS_DEBUG("Adding fixed segment from %s to %s", root.c_str(), child.getName().c_str());
+        ROS_INFO("Adding fixed segment from '%s' to '%s'", root.c_str(), child.getName().c_str());
       }
     }
     else {
       segments_[child.getJoint().getName()] = s;
-      ROS_DEBUG("Adding moving segment from %s to %s", root.c_str(), child.getName().c_str());
+      ROS_INFO("Adding moving segment from '%s' to '%s'", root.c_str(), child.getName().c_str());
     }
     addChildren(children[i]);
   }
@@ -167,7 +172,7 @@ tf2_msgs::TFMessage RobotState::getTransforms(const ros::Time& time)
 // get fixed transforms
 tf2_msgs::TFMessage RobotState::getFixedTransforms(const ros::Time& time)
 {
-  ROS_DEBUG("Publishing transforms for fixed joints");
+  ROS_DEBUG("Getting transforms for fixed joints");
   tf2_msgs::TFMessage tfm;
 
   // loop over all fixed segments
