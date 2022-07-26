@@ -50,22 +50,11 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <urdf/model.h>
 
+#include "robot_state_publisher/robot_state_publisher.h"
+
 namespace robot_state_publisher {
 
 typedef std::map<std::string, urdf::JointMimicSharedPtr> MimicMap;
-
-class SegmentPair
-{
-public:
-  // TODO(lucasw) needed for operator[] map access, consider elminating that need
-  SegmentPair(){}
-  SegmentPair(const KDL::Segment& p_segment, const std::string& p_root, const std::string& p_tip):
-    segment(p_segment), root(p_root), tip(p_tip){}
-
-  KDL::Segment segment;
-  std::string root, tip;
-};
-
 
 class RobotState
 {
@@ -83,8 +72,8 @@ public:
    * \param joint_positions A map of joint names and joint positions.
    * \param time The time at which the joint positions were recorded
    */
-  tf2_msgs::TFMessage getTransforms(const ros::Time& time);
-  tf2_msgs::TFMessage getFixedTransforms(const ros::Time& time);
+  tf2_msgs::TFMessage getTransforms(const ros::Time& time, const std::string& tf_prefix);
+  tf2_msgs::TFMessage getFixedTransforms(const ros::Time& time, const std::string& tf_prefix);
 
 protected:
   virtual void addChildren(const KDL::SegmentMap::const_iterator segment);

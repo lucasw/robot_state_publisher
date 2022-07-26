@@ -45,6 +45,32 @@
 
 namespace robot_state_publisher {
 
+std::string prefix_frame(const std::string & tf_prefix, const std::string & frame)
+{
+  // If the frame begins with a slash, remove the first slash and don't add prefix at all
+  if (frame.size() && frame[0] == '/') {
+    return frame.substr(1);
+  }
+
+  std::string prefixed_frame;
+
+  // If the prefix begins with a slash, remove it
+  if (tf_prefix.size() && tf_prefix[0] == '/') {
+    prefixed_frame = tf_prefix.substr(1);
+  } else {
+    prefixed_frame = tf_prefix;
+  }
+
+  // Add a slash after a non-empty prefix
+  if (!tf_prefix.empty()) {
+    prefixed_frame += '/';
+  }
+
+  prefixed_frame += frame;
+
+  return prefixed_frame;
+}
+
 RobotStatePublisher::RobotStatePublisher() : RobotStatePublisher(KDL::Tree())
 {
 }
@@ -89,33 +115,6 @@ std::string stripSlash(const std::string & in)
     return in.substr(1);
   }
   return in;
-}
-
-// Replicate behavior of tf 1 tf_prefix
-std::string prefix_frame(const std::string & tf_prefix, const std::string & frame)
-{
-  // If the frame begins with a slash, remove the first slash and don't add prefix at all
-  if (frame.size() && frame[0] == '/') {
-    return frame.substr(1);
-  }
-
-  std::string prefixed_frame;
-
-  // If the prefix begins with a slash, remove it
-  if (tf_prefix.size() && tf_prefix[0] == '/') {
-    prefixed_frame = tf_prefix.substr(1);
-  } else {
-    prefixed_frame = tf_prefix;
-  }
-
-  // Add a slash after a non-empty prefix
-  if (!tf_prefix.empty()) {
-    prefixed_frame += '/';
-  }
-
-  prefixed_frame += frame;
-
-  return prefixed_frame;
 }
 
 // publish moving transforms

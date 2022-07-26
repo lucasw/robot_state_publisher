@@ -50,9 +50,13 @@
 
 namespace robot_state_publisher {
 
+// Replicate behavior of tf 1 tf_prefix
+std::string prefix_frame(const std::string & tf_prefix, const std::string & frame);
+
 class SegmentPair
 {
 public:
+  SegmentPair(){}
   SegmentPair(const KDL::Segment& p_segment, const std::string& p_root, const std::string& p_tip):
     segment(p_segment), root(p_root), tip(p_tip){}
 
