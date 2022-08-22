@@ -67,6 +67,7 @@ public:
   ~RobotState(){}
 
   virtual void setJointState(const sensor_msgs::JointState& joint_state);
+  sensor_msgs::JointState getJointStates();
 
   /** Get transforms given recent joint angles
    * \param joint_positions A map of joint names and joint positions.

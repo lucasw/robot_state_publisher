@@ -98,12 +98,12 @@ void RobotState::addChildren(const KDL::SegmentMap::const_iterator segment)
       }
       else {
         segments_fixed_[child.getJoint().getName()] = s;
-        ROS_INFO("Adding fixed segment from '%s' to '%s'", root.c_str(), child.getName().c_str());
+        ROS_DEBUG("Adding fixed segment from '%s' to '%s'", root.c_str(), child.getName().c_str());
       }
     }
     else {
       segments_[child.getJoint().getName()] = s;
-      ROS_INFO("Adding moving segment from '%s' to '%s'", root.c_str(), child.getName().c_str());
+      ROS_DEBUG("Adding moving segment from '%s' to '%s'", root.c_str(), child.getName().c_str());
     }
     addChildren(children[i]);
   }
@@ -142,6 +142,17 @@ void RobotState::setJointState(const sensor_msgs::JointState& joint_state)
       joint_positions_[joint_dst_name] = pos;
     }
   }
+}
+
+sensor_msgs::JointState RobotState::getJointStates()
+{
+  sensor_msgs::JointState js;
+  for (const auto& jnt : joint_positions_) {
+    js.name.push_back(jnt.first);
+    js.position.push_back(jnt.second);
+  }
+
+  return js;
 }
 
 // get moving transforms
