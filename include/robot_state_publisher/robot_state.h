@@ -73,8 +73,8 @@ public:
    * \param joint_positions A map of joint names and joint positions.
    * \param time The time at which the joint positions were recorded
    */
-  tf2_msgs::TFMessage getTransforms(const ros::Time& time, const std::string& tf_prefix);
-  tf2_msgs::TFMessage getFixedTransforms(const ros::Time& time, const std::string& tf_prefix);
+  tf2_msgs::TFMessage getTransforms(const ros::Time& time, const std::string& tf_prefix) const;
+  tf2_msgs::TFMessage getFixedTransforms(const ros::Time& time, const std::string& tf_prefix) const;
 
 protected:
   virtual void addChildren(const KDL::SegmentMap::const_iterator segment);

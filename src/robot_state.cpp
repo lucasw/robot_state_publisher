@@ -156,7 +156,7 @@ sensor_msgs::JointState RobotState::getJointStates()
 }
 
 // get moving transforms
-tf2_msgs::TFMessage RobotState::getTransforms(const ros::Time& time, const std::string& tf_prefix)
+tf2_msgs::TFMessage RobotState::getTransforms(const ros::Time& time, const std::string& tf_prefix) const
 {
   tf2_msgs::TFMessage tfm;
 
@@ -166,7 +166,7 @@ tf2_msgs::TFMessage RobotState::getTransforms(const ros::Time& time, const std::
     const auto& joint_position = jnt.second;
 
     if (segments_.count(joint_name) > 0) {
-      const auto& seg = segments_[joint_name];
+      const auto& seg = segments_.at(joint_name);
       geometry_msgs::TransformStamped tf_transform = tf2::kdlToTransform(seg.segment.pose(joint_position));
       tf_transform.header.stamp = time;
       tf_transform.header.frame_id = prefix_frame(tf_prefix, seg.root);
@@ -181,7 +181,7 @@ tf2_msgs::TFMessage RobotState::getTransforms(const ros::Time& time, const std::
 }
 
 // get fixed transforms
-tf2_msgs::TFMessage RobotState::getFixedTransforms(const ros::Time& time, const std::string& tf_prefix)
+tf2_msgs::TFMessage RobotState::getFixedTransforms(const ros::Time& time, const std::string& tf_prefix) const
 {
   ROS_DEBUG("Getting transforms for fixed joints");
   tf2_msgs::TFMessage tfm;
