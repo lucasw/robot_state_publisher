@@ -45,6 +45,7 @@
 #include <kdl/tree.hpp>
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
+#include <tf2/buffer_core.h>
 #include <tf2_msgs/TFMessage.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <tf2_ros/transform_broadcaster.h>
@@ -55,6 +56,10 @@
 namespace robot_state_publisher {
 
 typedef std::map<std::string, urdf::JointMimicSharedPtr> MimicMap;
+
+void addTransformsToBuffer(tf2::BufferCore& bc,
+                           const tf2_msgs::TFMessage& tfm,
+                           const bool is_static = false);
 
 class RobotState
 {
@@ -73,8 +78,12 @@ public:
    * \param joint_positions A map of joint names and joint positions.
    * \param time The time at which the joint positions were recorded
    */
-  tf2_msgs::TFMessage getTransforms(const ros::Time& time, const std::string& tf_prefix) const;
-  tf2_msgs::TFMessage getFixedTransforms(const ros::Time& time, const std::string& tf_prefix) const;
+  tf2_msgs::TFMessage getTransforms(const ros::Time& time, const std::string& tf_prefix = "") const;
+  tf2_msgs::TFMessage getFixedTransforms(const ros::Time& time, const std::string& tf_prefix = "") const;
+
+  /** Get tf buffer of all the transforms */
+  void toBufferCore(tf2::BufferCore& bc, const ros::Time& time,
+                    const std::string& tf_prefix = "") const;
 
 protected:
   virtual void addChildren(const KDL::SegmentMap::const_iterator segment);
