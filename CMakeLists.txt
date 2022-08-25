@@ -23,7 +23,7 @@ find_package(Eigen3 REQUIRED)
 
 find_package(urdfdom_headers REQUIRED)
 
-set(ROSLINT_CPP_OPTS "--filter=-whitespace/braces")
+set(ROSLINT_CPP_OPTS "--filter=-whitespace/braces,-runtime/references")
 roslint_cpp(
   src/robot_state.cpp
   include/robot_state_publisher/robot_state.h
