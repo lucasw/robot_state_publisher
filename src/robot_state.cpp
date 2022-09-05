@@ -67,8 +67,13 @@ RobotState::RobotState()
   }
 
   for (const auto& joints : model_.joints_) {
-    if (joints.second->mimic) {
-      mimic_[joints.first] = joints.second->mimic;
+    const auto& joint_name = joints.first;
+    const auto& joint = joints.second;
+    if (joint->mimic) {
+      mimic_[joint_name] = joint->mimic;
+    }
+    if (joint->limits) {
+      ROS_INFO_STREAM(joint_name << " limited: " << joint->limits->lower << " - " << joint->limits->upper);
     }
   }
   ROS_INFO_STREAM("mimic joints " << mimic_.size());
@@ -130,6 +135,7 @@ void RobotState::setJointState(const sensor_msgs::JointState& joint_state)
   for (size_t i = 0; i < joint_state.name.size(); ++i) {
     const auto& joint_name = joint_state.name[i];
     const auto& joint_position = joint_state.position[i];
+    // TODO(lucasw) optionally enforce joint limits
     joint_positions_[joint_name] = joint_position;
   }
 
@@ -144,7 +150,7 @@ void RobotState::setJointState(const sensor_msgs::JointState& joint_state)
   }
 }
 
-sensor_msgs::JointState RobotState::getJointStates()
+sensor_msgs::JointState RobotState::getJointStates() const
 {
   sensor_msgs::JointState js;
   for (const auto& jnt : joint_positions_) {
@@ -153,6 +159,11 @@ sensor_msgs::JointState RobotState::getJointStates()
   }
 
   return js;
+}
+
+urdf::JointConstSharedPtr RobotState::getJoint(const std::string& joint_name) const
+{
+  return model_.getJoint(joint_name);
 }
 
 // get moving transforms
