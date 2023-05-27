@@ -84,7 +84,7 @@ public:
 
   /** Get tf buffer of all the transforms */
   void toBufferCore(tf2::BufferCore& bc, const ros::Time& time,
-                    const std::string& tf_prefix = "") const;
+                    const std::string& tf_prefix = "", const std::string authority_prefix = "") const;
 
 protected:
   virtual void addChildren(const KDL::SegmentMap::const_iterator segment);

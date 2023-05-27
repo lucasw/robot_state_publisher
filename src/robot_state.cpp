@@ -212,9 +212,11 @@ tf2_msgs::TFMessage RobotState::getFixedTransforms(const ros::Time& time, const 
 
 void addTransformsToBuffer(tf2::BufferCore& bc,
                            const tf2_msgs::TFMessage& tfm,
-                           const bool is_static)
+                           const bool is_static,
+                           const std::string authority_prefix)
 {
-  const std::string authority = is_static ? "robot_state_add_static_transforms" : "robot_state_add_transforms";
+  const std::string authority_postfix = is_static ? "robot_state_add_static_transforms" : "robot_state_add_transforms";
+  const std::string authority = authority_prefix + authority_postfix;
   for (const auto& tfs : tfm.transforms) {
     if (tfs.child_frame_id == tfs.header.frame_id) {
       ROS_WARN_STREAM("same parent and child: '" << tfs.child_frame_id << "'");
@@ -225,10 +227,11 @@ void addTransformsToBuffer(tf2::BufferCore& bc,
 }
 
 void RobotState::toBufferCore(tf2::BufferCore& bc, const ros::Time& stamp,
-                              const std::string& tf_prefix) const
+                              const std::string& tf_prefix,
+                              const std::string authority_prefix) const
 {
-  addTransformsToBuffer(bc, getFixedTransforms(stamp, tf_prefix), true);
-  addTransformsToBuffer(bc, getTransforms(stamp, tf_prefix), false);
+  addTransformsToBuffer(bc, getFixedTransforms(stamp, tf_prefix), true, authority_prefix);
+  addTransformsToBuffer(bc, getTransforms(stamp, tf_prefix), false, authority_prefix);
 }
 
 }  // namespace robot_state_publisher
