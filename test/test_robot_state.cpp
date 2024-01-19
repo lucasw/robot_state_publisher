@@ -69,7 +69,7 @@ TEST(RobotStatePublisher, printTransforms)
   double angle = 0.0;
   js.position.push_back(angle);
   const size_t num = 5;
-  for (int i = 0; i <num; ++i) {
+  for (size_t i = 0; i <num; ++i) {
     js.position[0] = angle;
     rs.setJointState(js);
     ROS_WARN_STREAM(i << " angle " << angle);
