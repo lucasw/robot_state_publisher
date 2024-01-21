@@ -3,11 +3,6 @@ project(robot_state_publisher)
 
 include(CheckCXXCompilerFlag)
 
-if (NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 14)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif ()
-
 if(MSVC)
   # MSVC does not support the Wextra flag
   add_compile_options(/Wall)
@@ -43,7 +38,6 @@ add_library(${PROJECT_NAME}_solver
   src/robot_state.cpp
   src/robot_state_publisher.cpp
 )
-target_compile_features(${PROJECT_NAME}_solver PUBLIC cxx_std_14)
 target_link_libraries(${PROJECT_NAME}_solver ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})
 
 add_library(joint_state_listener src/joint_state_listener.cpp)
