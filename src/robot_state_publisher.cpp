@@ -131,6 +131,9 @@ void RobotStatePublisher::publishTransforms(const std::map<std::string, double>&
       tf_transform.header.stamp = time;
       tf_transform.header.frame_id = prefix_frame(tf_prefix, seg->second.root);
       tf_transform.child_frame_id = prefix_frame(tf_prefix, seg->second.tip);
+      if (exclude_frames_.count(tf_transform.child_frame_id) > 0) {
+        continue;
+      }
       tf_transforms.push_back(tf_transform);
     }
     else {
@@ -156,6 +159,9 @@ void RobotStatePublisher::publishFixedTransforms(const std::string & tf_prefix, 
     }
     tf_transform.header.frame_id = prefix_frame(tf_prefix, seg->second.root);
     tf_transform.child_frame_id = prefix_frame(tf_prefix, seg->second.tip);
+    if (exclude_frames_.count(tf_transform.child_frame_id) > 0) {
+      continue;
+    }
     tf_transforms.push_back(tf_transform);
   }
   if (use_tf_static) {

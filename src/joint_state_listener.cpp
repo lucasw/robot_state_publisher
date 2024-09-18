@@ -63,6 +63,15 @@ JointStateListener::JointStateListener(const std::shared_ptr<RobotStatePublisher
   ros::NodeHandle n_tilde("~");
   ros::NodeHandle n;
 
+  std::vector<std::string> exclude_list;
+  n_tilde.getParam("excludes", exclude_list);
+  for (const auto& exclude_frame : exclude_list) {
+    ROS_WARN_STREAM("excluding " << exclude_frame);
+    exclude_frames_.insert(exclude_frame);
+  }
+  ROS_INFO_STREAM("excluding " << exclude_frames_.size() << " frames");
+  state_publisher_->exclude_frames_ = exclude_frames_;
+
   // set publish frequency
   double publish_freq;
   n_tilde.param("publish_frequency", publish_freq, 50.0);

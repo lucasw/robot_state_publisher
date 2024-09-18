@@ -39,6 +39,7 @@
 
 #include <memory>
 #include <map>
+#include <set>
 #include <string>
 
 #include <boost/scoped_ptr.hpp>
@@ -87,6 +88,7 @@ protected:
   MimicMap mimic_;
   bool use_tf_static_;
   bool ignore_timestamp_;
+  std::set<std::string> exclude_frames_;
 
 };
 }

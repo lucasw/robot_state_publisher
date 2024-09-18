@@ -38,6 +38,7 @@
 #define ROBOT_STATE_PUBLISHER_H
 
 #include <map>
+#include <set>
 #include <string>
 
 #include <ros/ros.h>
@@ -92,6 +93,7 @@ public:
   void publishTransforms(const std::map<std::string, double>& joint_positions, const ros::Time& time, const std::string & tf_prefix);
   void publishFixedTransforms(const std::string & tf_prefix, bool use_tf_static = false);
 
+  std::set<std::string> exclude_frames_;
 protected:
   virtual void addChildren(const KDL::SegmentMap::const_iterator segment);
 
